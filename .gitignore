@@ -1,0 +1,34 @@
+# Local build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+build/
+build/**/*.dll
+build/**/*.pdb
+dist/
+
+# Local per-machine configuration
+User.targets
+*.user
+*.suo
+
+# Extracted game data. Do not redistribute original game assets.
+data/assetripper-export*/
+data/analysis/
+Dump/
+Raw/
+
+# Local tools and downloaded archives
+tools/
+*.zip
+*.7z
+*.rar
+
+# Runtime dumps may contain game text; keep them local unless a project explicitly allows sharing.
+**/dumps/
+data/translation/labels-from-assetripper.txt
+data/translation/assetripper-translations.tsv
+data/translation/missing-from-bg.txt
+data/translation/missing-from-labels.txt
+data/translation/*.generated.txt

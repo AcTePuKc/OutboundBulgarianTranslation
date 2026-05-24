@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="User.targets" Condition="Exists('User.targets')" />
+</Project>
