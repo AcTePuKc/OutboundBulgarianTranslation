@@ -14,8 +14,7 @@ User.targets
 *.suo
 
 # Extracted game data. Do not redistribute original game assets.
-data/assetripper-export*/
-data/analysis/
+data/
 Dump/
 Raw/
 
@@ -27,8 +26,3 @@ tools/
 
 # Runtime dumps may contain game text; keep them local unless a project explicitly allows sharing.
 **/dumps/
-data/translation/labels-from-assetripper.txt
-data/translation/assetripper-translations.tsv
-data/translation/missing-from-bg.txt
-data/translation/missing-from-labels.txt
-data/translation/*.generated.txt

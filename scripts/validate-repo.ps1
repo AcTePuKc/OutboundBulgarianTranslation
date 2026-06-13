@@ -106,8 +106,7 @@ $forbiddenPathPatterns = @(
     "^\./?Dump/",
     "^\./?Raw/",
     "^\./?tools/",
-    "^\./?data/assetripper-export",
-    "^\./?data/analysis/",
+    "^\./?data/",
     "translation-dump\.txt$"
 )
 

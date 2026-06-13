@@ -18,10 +18,10 @@ Outbound Bulgarian Translation
 - Outbound/BepInEx/plugins/OutboundTranslationMod/translations/gnome-names.txt
 - Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
-Препоръчителен Config
----------------------
+Препоръчителна конфигурация
+---------------------------
 
-Архивът включва този plugin config за нормална игра:
+Архивът включва тази конфигурация на плъгина за нормална игра:
 
 Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
@@ -38,20 +38,19 @@ Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
 EnableGnomeNameOverrides = true включва отделната таблица за имената на гномите от translations/gnome-names.txt.
 
-EnableCompassDirectionOverrides = true превежда посоките на компаса от N/E/S/W на С/И/Ю/З. Тези надписи не са част от стандартната localization таблица, затова се обработват чрез отделен тесен compass UI hook.
+EnableCompassDirectionOverrides = true превежда посоките на компаса от N/E/S/W на С/И/Ю/З. Тези надписи не са част от стандартната таблица за локализация, затова се обработват отделно само в интерфейса на компаса.
 
-Ако вече си пускал по-стара версия на мода, BepInEx може да запази старите config стойности. Замени config файла с този от архива или изтрий стария config и пусни играта отново.
+Ако вече си пускал по-стара версия на мода, BepInEx може да запази старите стойности. Замени конфигурационния файл с този от архива или изтрий стария файл и пусни играта отново.
 
 Бележки
 -------
 
-- Посоките на компаса N/E/S/W не са част от localization таблицата на играта, но този мод ги превежда чрез отделен compass UI hook.
-- Някои collectible имена идват от game asset имена, а не от стандартни translation ключове.
-- Runtime dumping е изключен в release пакета. Включвай DumpTranslations само ако искаш да докладваш новооткрит липсващ текст.
+- Посоките на компаса N/E/S/W не са част от таблицата за локализация на играта, но този мод ги превежда отделно в интерфейса на компаса.
+- Някои collectible имена идват от game asset имена, а не от стандартни ключове за превод.
+- Runtime dumping е изключен в пакета. Включвай DumpTranslations само ако искаш да докладваш новооткрит липсващ текст.
 
-Credits
--------
+Автори
+------
 
-Български превод: AcTePuKc / Щерян Николаев
-Localization hook/tooling: AcTePuKc
-License: MIT
+Български превод и мод: AcTePuKc / Щерян Николаев
+Лиценз: MIT

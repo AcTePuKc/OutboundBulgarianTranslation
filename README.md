@@ -1,6 +1,6 @@
 # Outbound Bulgarian Translation Mod
 
-Български UI/текстов превод за `Outbound`, реализиран като BepInEx 6 IL2CPP plugin.
+Български UI/текстов превод за `Outbound`, реализиран като BepInEx 6 IL2CPP плъгин.
 
 Модът заменя украинския езиков слот в играта с български и зарежда превода от `translations/labels.txt`.
 
@@ -15,15 +15,16 @@
 
 - `Outbound/BepInEx/plugins/OutboundTranslationMod/OutboundTranslationMod.dll`
 - `Outbound/BepInEx/plugins/OutboundTranslationMod/translations/labels.txt`
+- `Outbound/BepInEx/plugins/OutboundTranslationMod/translations/gnome-names.txt`
 - `Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg`
 
-## Задължителен Config
+## Задължителна Конфигурация
 
-Това е config файлът на самия plugin, не основна BepInEx настройка:
+Това е конфигурационният файл на самия плъгин, не основна BepInEx настройка:
 
 `BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg`
 
-Release архивът включва правилния config за нормална игра:
+Архивът включва правилната конфигурация за нормална игра:
 
 ```ini
 [General]
@@ -37,31 +38,31 @@ OverrideAllLanguages = false
 AssumeTargetLanguageOnStartup = true
 ```
 
-`AssumeTargetLanguageOnStartup = true` е важна настройка за Outbound. Играта може да нарисува първите текстове в главното меню преди да съобщи запазения украински езиков слот на plugin-а. Без тази настройка началното меню може да остане на украински, докато играчът не смени езика ръчно.
+`AssumeTargetLanguageOnStartup = true` е важна настройка за Outbound. Играта може да нарисува първите текстове в главното меню преди да съобщи запазения украински езиков слот на плъгина. Без тази настройка началното меню може да остане на украински, докато играчът не смени езика ръчно.
 
-Ако вече си пускал по-стара версия на мода, BepInEx може да запази старите config стойности. В такъв случай замени config файла с този от release архива или изтрий стария config и пусни играта отново.
+Ако вече си пускал по-стара версия на мода, BepInEx може да запази старите стойности. В такъв случай замени конфигурационния файл с този от архива или изтрий стария файл и пусни играта отново.
 
-`DumpTranslations = false` е release настройката. Включвай я само при debug на липсващ или hardcoded текст, защото записва открит текст от играта в локален dump файл.
+`DumpTranslations = false` е настройката за нормална игра. Включвай я само при търсене на липсващ или твърдо записан текст, защото записва открит текст от играта в локален dump файл.
 
 `EnableGnomeNameOverrides = true` включва отделната таблица за имената на гномите от `translations/gnome-names.txt`.
 
-`EnableCompassDirectionOverrides = true` превежда посоките на компаса от `N/E/S/W` на `С/И/Ю/З`. Тези надписи не са стандартни localization ключове, затова plugin-ът ги обработва с отделен тесен hook само за compass UI.
+`EnableCompassDirectionOverrides = true` превежда посоките на компаса от `N/E/S/W` на `С/И/Ю/З`. Тези надписи не са стандартни ключове за локализация, затова плъгинът ги обработва отделно само в интерфейса на компаса.
 
 ## Текущ Статус
 
-- Всички извлечени localization ключове на Outbound са покрити в `labels.txt`.
-- Тестваната версия е Steam IL2CPP build-ът.
-- Новите release-и използват `translations/labels.txt`; `labels-bg.txt` е само legacy fallback.
-- Посоките на компаса `N/E/S/W` не са част от localization таблицата, но се превеждат чрез отделен compass UI hook.
-- Microsoft Store / Xbox app build-овете може да изискват допълнителна BepInEx настройка и не са гарантирани от този пакет.
+- Всички извлечени ключове за локализация на Outbound са покрити в `labels.txt`.
+- Тестваната версия е Steam IL2CPP версията.
+- Новите архиви използват `translations/labels.txt`; `labels-bg.txt` е само резервен файл за съвместимост.
+- Посоките на компаса `N/E/S/W` не са част от таблицата за локализация, но се превеждат отделно в интерфейса на компаса.
+- Microsoft Store / Xbox app версиите може да изискват допълнителна BepInEx настройка и не са гарантирани от този пакет.
 
 ## Структура
 
-- `src/OutboundTranslationMod`: source код на BepInEx IL2CPP plugin-а.
+- `src/OutboundTranslationMod`: изходният код на BepInEx IL2CPP плъгина.
 - `src/OutboundTranslationMod/translations/labels.txt`: активният български превод.
-- `release/`: Nexus README и release config.
-- `scripts/`: build, package и validation scripts.
-- `User.targets.example`: примерен локален build config за различни game paths.
+- `release/`: README за Nexus и конфигурация за архива.
+- `scripts/`: скриптове за build, пакетиране и проверка.
+- `User.targets.example`: примерна локална build конфигурация за различни пътища до играта.
 
 В `labels.txt` escaped нови редове като `\n\n` се поддържат директно в стойностите, без целият текст да се слага в кавички.
 
@@ -77,7 +78,7 @@ AssumeTargetLanguageOnStartup = true
 </Project>
 ```
 
-`User.targets` е игнориран от git, за да може всеки contributor да използва различен Steam library path.
+`User.targets` е игнориран от git, за да може всеки contributor да използва различен път до Steam библиотеката.
 
 Build:
 
@@ -91,34 +92,34 @@ Build:
 .\scripts\build-plugin.ps1 -Method dotnet
 ```
 
-Създаване на Nexus-style архив след build:
+Създаване на архив за Nexus след build:
 
 ```powershell
 .\scripts\package-release.ps1
 ```
 
-Архивът се записва в `dist/` и включва само plugin DLL, `labels.txt`, `gnome-names.txt`, release config, player README, license и attribution notice.
+Архивът се записва в `dist/` и включва само DLL файла на плъгина, `labels.txt`, `gnome-names.txt`, конфигурацията, README за играчи, лиценза и бележката за авторство.
 
-GitHub Actions валидира translation файловете и release metadata, но не build-ва DLL-а. Публичен CI build би изисквал локални BepInEx interop/game assemblies от инсталирано копие на Outbound, които не трябва да се commit-ват или разпространяват.
+GitHub Actions проверява файловете за превод и метаданните на архива, но не build-ва DLL-а. Публичен CI build би изисквал локални BepInEx interop/game assemblies от инсталирано копие на Outbound, които не трябва да се commit-ват или разпространяват.
 
 ## Правила За Споделяне
 
 Може да се споделя:
 
-- Source кодът на plugin-а.
-- Build/package scripts.
-- Build templates.
+- Изходният код на плъгина.
+- Скриптовете за build и пакетиране.
+- Build шаблоните.
 - Собственият български `labels.txt`.
 
 Не трябва да се споделят:
 
 - Извлечени game assets.
 - Оригинални game dumps.
-- Оригинални game assets или generated файлове, съдържащи оригинален localization текст.
+- Оригинални game assets или генерирани файлове, съдържащи оригинален текст за локализация.
 
-## License
+## Лиценз
 
-Кодът, scripts и българският превод са публикувани под MIT License. Ако използваш проекта като база за друг translation mod, запази copyright/license notice и credit-а към оригиналния проект, както е описано в `NOTICE.md`.
+Кодът, скриптовете и българският превод са публикувани под MIT License. Ако използваш проекта като база за друг translation mod, запази copyright/license notice и credit-а към оригиналния проект, както е описано в `NOTICE.md`.
 
 ## Важна Бележка
 

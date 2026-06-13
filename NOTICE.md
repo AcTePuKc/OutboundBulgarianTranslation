@@ -1,7 +1,7 @@
-# Attribution
+# Авторство
 
-This project was created by AcTePuKc / Щерян Николаев.
+Този проект е създаден от AcTePuKc / Щерян Николаев.
 
-If you use this repository as a base for another Outbound translation or a similar Unity IL2CPP translation hook, please credit this project in your README, mod page, or release notes.
+Ако използваш това repo като база за друг превод на Outbound, посочи credit към този проект в README, страницата на мода или release бележките.
 
-The MIT License requires the copyright and license notice to be preserved in copies or substantial portions of the software. This notice is an additional friendly attribution request for derivative translation mods.
+MIT лицензът изисква copyright и license notice да бъдат запазени в копия или съществени части от софтуера. Тази бележка е допълнителна молба за attribution при производни translation модове.
