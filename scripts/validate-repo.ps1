@@ -75,10 +75,13 @@ $config = Get-Content -LiteralPath $ReleaseConfigPath -Raw -Encoding UTF8
 $requiredConfig = @(
     "DumpTranslations = false",
     "EnableTranslationOverrides = true",
+    "EnableGnomeNameOverrides = true",
+    "EnableCompassDirectionOverrides = true",
     "LabelsFileName = labels.txt",
     "TargetLanguageName = Ukrainian",
     "OverrideAllLanguages = false",
-    "AssumeTargetLanguageOnStartup = true"
+    "AssumeTargetLanguageOnStartup = true",
+    "DumpCompassDirectionCandidates = false"
 )
 
 foreach ($entry in $requiredConfig) {
@@ -94,6 +97,9 @@ if (-not (Test-Path -LiteralPath $ReleaseReadmePath)) {
 $releaseReadme = Get-Content -LiteralPath $ReleaseReadmePath -Raw -Encoding UTF8
 if (-not $releaseReadme.Contains("AssumeTargetLanguageOnStartup = true")) {
     Fail "Release readme must mention AssumeTargetLanguageOnStartup = true"
+}
+if (-not $releaseReadme.Contains("EnableCompassDirectionOverrides = true")) {
+    Fail "Release readme must mention EnableCompassDirectionOverrides = true"
 }
 
 $forbiddenPathPatterns = @(

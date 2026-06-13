@@ -27,6 +27,7 @@ Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 - DumpTranslations = false
 - EnableTranslationOverrides = true
 - EnableGnomeNameOverrides = true
+- EnableCompassDirectionOverrides = true
 - LabelsFileName = labels.txt
 - TargetLanguageName = Ukrainian
 - OverrideAllLanguages = false
@@ -36,12 +37,14 @@ Important: AssumeTargetLanguageOnStartup = true is required for Outbound's start
 
 EnableGnomeNameOverrides = true enables the separate gnome-name replacement table from translations/gnome-names.txt.
 
+EnableCompassDirectionOverrides = true translates the compass direction labels from N/E/S/W to С/И/Ю/З. These labels are not part of the normal localization table, so they are handled by a narrow compass UI hook.
+
 If you already ran an older version of the mod, BepInEx may keep your old config values. Replace the config with the one from this archive or delete the old config and run the game again.
 
 Notes
 -----
 
-- The compass/radar N/E/S/W markings are not part of the game's localization table and are not translated by this mod.
+- The compass N/E/S/W markings are not part of the game's localization table, but this mod translates them through a dedicated compass UI hook.
 - Some collectible names may come from game asset names rather than translation keys.
 - Runtime dumping is disabled in the release package because all extracted translation keys are currently covered. Enable DumpTranslations only if you want to report newly discovered missing text.
 

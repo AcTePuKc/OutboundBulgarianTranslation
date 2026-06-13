@@ -2,7 +2,7 @@
 
 Bulgarian UI/text translation mod for `Outbound`, built as a BepInEx 6 IL2CPP plugin.
 
-The player-facing release replaces the game's Ukrainian language slot with Bulgarian and loads text from a plain `translations/labels.txt` file. The repository also includes source code and workflow notes that can be reused as a small Unity IL2CPP translation hook toolkit.
+The player-facing release replaces the game's Ukrainian language slot with Bulgarian and loads text from a plain `translations/labels.txt` file.
 
 ## For Players
 
@@ -30,6 +30,7 @@ The release archive includes the correct config for normal play:
 DumpTranslations = false
 EnableTranslationOverrides = true
 EnableGnomeNameOverrides = true
+EnableCompassDirectionOverrides = true
 LabelsFileName = labels.txt
 TargetLanguageName = Ukrainian
 OverrideAllLanguages = false
@@ -44,12 +45,14 @@ If you already ran an older version of the mod, BepInEx may keep your old config
 
 `EnableGnomeNameOverrides = true` enables the separate gnome-name replacement table from `translations/gnome-names.txt`.
 
+`EnableCompassDirectionOverrides = true` translates Outbound's compass direction labels from `N/E/S/W` to `С/И/Ю/З`. These labels are not normal localization keys, so the plugin handles them through a narrow runtime hook for the game's compass UI.
+
 ## Current Status
 
 - All extracted Outbound localization keys are covered by `labels.txt`.
 - The Steam IL2CPP build is the tested target.
 - New translation releases use `translations/labels.txt`; `labels-bg.txt` is only a legacy fallback.
-- Compass/radar `N/E/S/W` markings are not part of the localization table and are not translated by this mod.
+- Compass `N/E/S/W` markings are not part of the localization table, but are translated by a dedicated compass UI hook.
 - Microsoft Store / Xbox app builds may need extra BepInEx setup and are not guaranteed by this package.
 
 ## Project Layout
@@ -57,8 +60,7 @@ If you already ran an older version of the mod, BepInEx may keep your old config
 - `src/OutboundTranslationMod`: BepInEx IL2CPP plugin source.
 - `src/OutboundTranslationMod/translations/labels.txt`: active Bulgarian translation file.
 - `release/`: Nexus-style readme and release config.
-- `scripts/`: build, package, and translation helper scripts.
-- `docs/unity-il2cpp-translation-workflow.md`: reusable workflow notes for similar Unity IL2CPP games.
+- `scripts/`: build, package, and validation scripts.
 - `User.targets.example`: local build configuration template for game-specific paths.
 
 In `labels.txt`, escaped line breaks such as `\n\n` are supported directly in values without wrapping the whole label in quotes.
@@ -95,7 +97,7 @@ To create a Nexus-style archive after building:
 .\scripts\package-release.ps1
 ```
 
-The archive is written under `dist/` and includes only the plugin DLL, `labels.txt`, release config, player readme, license, and attribution notice.
+The archive is written under `dist/` and includes only the plugin DLL, `labels.txt`, `gnome-names.txt`, release config, player readme, license, and attribution notice.
 
 GitHub Actions validates the translation files and release metadata, but does not build the DLL. A public CI build would need local BepInEx interop/game assemblies from an installed copy of Outbound, which should not be committed or redistributed.
 
@@ -104,20 +106,19 @@ GitHub Actions validates the translation files and release metadata, but does no
 Safe to share:
 
 - Plugin source code.
-- Scripts.
-- Documentation.
+- Build/package scripts.
 - Build templates.
 - Your own translated `labels.txt`.
 
 Do not share:
 
-- AssetRipper exports.
-- UABEA dumps.
+- Extracted game assets.
+- Original game dumps.
 - Original game assets or generated files containing original localization text.
 
 ## License
 
-Code, scripts, docs, and the Bulgarian translation are released under the MIT License. If you use this project as a base for another translation mod, please keep the copyright/license notice and credit the original project as described in `NOTICE.md`.
+Code, scripts, and the Bulgarian translation are released under the MIT License. If you use this project as a base for another translation mod, please keep the copyright/license notice and credit the original project as described in `NOTICE.md`.
 
 ## Important Note
 

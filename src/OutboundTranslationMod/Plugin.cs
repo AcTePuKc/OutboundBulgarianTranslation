@@ -16,12 +16,13 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "actepukc.outbound.uitranslationbulgarian";
     public const string PluginName = "(UI) Outbound Bulgarian Translation";
-    public const string PluginVersion = "0.1.2";
+    public const string PluginVersion = "0.1.3";
 
     internal static new ManualLogSource Log;
     internal static readonly Dictionary<string, string> Replacements = new Dictionary<string, string>(StringComparer.Ordinal);
     internal static readonly Dictionary<string, string> GnomeNameReplacements = new Dictionary<string, string>(StringComparer.Ordinal);
     internal static readonly HashSet<string> DumpedKeys = new HashSet<string>(StringComparer.Ordinal);
+    internal static readonly HashSet<string> DumpedCompassCandidates = new HashSet<string>(StringComparer.Ordinal);
     internal static string DumpPath = string.Empty;
     internal static string LabelsPath = string.Empty;
     internal static string LegacyLabelsPath = string.Empty;
@@ -36,6 +37,8 @@ public sealed class Plugin : BasePlugin
     internal static ConfigEntry<bool> OverrideAllLanguages;
     internal static ConfigEntry<bool> AssumeTargetLanguageOnStartup;
     internal static ConfigEntry<bool> EnableGnomeNameOverrides;
+    internal static ConfigEntry<bool> EnableCompassDirectionOverrides;
+    internal static ConfigEntry<bool> DumpCompassDirectionCandidates;
     internal static Harmony HarmonyInstance;
     internal static Language CurrentLanguage = Language.English;
     internal static Language TargetLanguage = Language.Ukrainian;
@@ -63,6 +66,8 @@ public sealed class Plugin : BasePlugin
         OverrideAllLanguages = Config.Bind("General", "OverrideAllLanguages", false, "Apply replacements regardless of the currently selected game language.");
         AssumeTargetLanguageOnStartup = Config.Bind("General", "AssumeTargetLanguageOnStartup", false, "Assume the configured translated language slot is active before the game reports its saved language.");
         EnableGnomeNameOverrides = Config.Bind("General", "EnableGnomeNameOverrides", true, "Replace collectible gnome names from translations/gnome-names.txt after the game formats them into UI text.");
+        EnableCompassDirectionOverrides = Config.Bind("General", "EnableCompassDirectionOverrides", true, "Replace N/E/S/W labels only inside Outbound's compass UI.");
+        DumpCompassDirectionCandidates = Config.Bind("Debug", "DumpCompassDirectionCandidates", false, "Log active compass direction text candidates and hierarchy paths. Enable only while debugging.");
         LabelsPath = Path.Combine(pluginDir, "translations", LabelsFileName.Value);
         TargetLanguage = ResolveTargetLanguage(TargetLanguageName.Value);
 
@@ -231,6 +236,231 @@ public sealed class Plugin : BasePlugin
         return text.IndexOf("Носи името", StringComparison.OrdinalIgnoreCase) >= 0
             || text.IndexOf("Зветься", StringComparison.OrdinalIgnoreCase) >= 0
             || text.IndexOf("It goes by the name", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    internal static string ReplaceCompassDirection(TMP_Text textComponent, string text)
+    {
+        if (textComponent == null || string.IsNullOrEmpty(text) || !EnableCompassDirectionOverrides.Value)
+        {
+            return text;
+        }
+
+        if (!IsTargetLanguageMode(CurrentLanguage))
+        {
+            return text;
+        }
+
+        var trimmed = text.Trim();
+        if (!TryMapCompassDirection(trimmed, out var replacement))
+        {
+            return text;
+        }
+
+        if (!IsCompassDirectionText(textComponent, trimmed))
+        {
+            return text;
+        }
+
+        if (trimmed.Length == text.Length)
+        {
+            return replacement;
+        }
+
+        var start = text.IndexOf(trimmed, StringComparison.Ordinal);
+        return text[..start] + replacement + text[(start + trimmed.Length)..];
+    }
+
+    internal static string ApplyTMPTextOverrides(TMP_Text textComponent, string text)
+    {
+        text = ReplaceCompassDirection(textComponent, text);
+        text = ReplaceGnomeNames(text);
+        return text;
+    }
+
+    internal static bool TryMapCompassDirection(string text, out string replacement)
+    {
+        switch (text)
+        {
+            case "N":
+                replacement = "С";
+                return true;
+            case "E":
+                replacement = "И";
+                return true;
+            case "S":
+                replacement = "Ю";
+                return true;
+            case "W":
+                replacement = "З";
+                return true;
+            default:
+                replacement = text;
+                return false;
+        }
+    }
+
+    internal static bool IsCompassDirectionText(TMP_Text textComponent, string direction)
+    {
+        try
+        {
+            var transform = textComponent.transform;
+            var parent = transform != null ? transform.parent : null;
+            if (parent == null || !string.Equals(parent.name, DirectionParentName(direction), StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var current = parent.parent;
+            for (var i = 0; i < 6 && current != null; i++)
+            {
+                if (string.Equals(current.name, "Compass", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                current = current.parent;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"Failed to inspect compass direction hierarchy: {ex.Message}");
+        }
+
+        return false;
+    }
+
+    internal static string DirectionParentName(string direction)
+    {
+        switch (direction)
+        {
+            case "N":
+                return "North";
+            case "E":
+                return "East";
+            case "S":
+                return "South";
+            case "W":
+                return "West";
+            default:
+                return string.Empty;
+        }
+    }
+
+    internal static void DumpCompassCandidatesFrom(Transform root, string source)
+    {
+        if (root == null || !DumpCompassDirectionCandidates.Value)
+        {
+            return;
+        }
+
+        TMP_Text[] textComponents;
+        try
+        {
+            textComponents = root.GetComponentsInChildren<TMP_Text>(true);
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"Failed to scan compass text candidates from {source}: {ex.Message}");
+            return;
+        }
+
+        foreach (var textComponent in textComponents)
+        {
+            if (textComponent == null)
+            {
+                continue;
+            }
+
+            string text;
+            try
+            {
+                text = textComponent.text ?? string.Empty;
+            }
+            catch
+            {
+                continue;
+            }
+
+            var trimmed = text.Trim();
+            if (!TryMapCompassDirection(trimmed, out _))
+            {
+                continue;
+            }
+
+            var path = GetHierarchyPath(textComponent.transform);
+            var key = source + "\t" + trimmed + "\t" + path;
+            lock (DumpedCompassCandidates)
+            {
+                if (!DumpedCompassCandidates.Add(key))
+                {
+                    continue;
+                }
+            }
+
+            Log.LogInfo($"Compass candidate [{source}] text='{trimmed}' path='{path}'");
+        }
+    }
+
+    internal static void ApplyCompassDirectionOverridesFrom(Transform root)
+    {
+        if (root == null || !EnableCompassDirectionOverrides.Value || !IsTargetLanguageMode(CurrentLanguage))
+        {
+            return;
+        }
+
+        TMP_Text[] textComponents;
+        try
+        {
+            textComponents = root.GetComponentsInChildren<TMP_Text>(true);
+        }
+        catch (Exception ex)
+        {
+            Log.LogWarning($"Failed to scan compass text overrides: {ex.Message}");
+            return;
+        }
+
+        foreach (var textComponent in textComponents)
+        {
+            if (textComponent == null)
+            {
+                continue;
+            }
+
+            string text;
+            try
+            {
+                text = textComponent.text ?? string.Empty;
+            }
+            catch
+            {
+                continue;
+            }
+
+            var replacement = ReplaceCompassDirection(textComponent, text);
+            if (!string.Equals(text, replacement, StringComparison.Ordinal))
+            {
+                textComponent.text = replacement;
+            }
+        }
+    }
+
+    internal static string GetHierarchyPath(Transform transform)
+    {
+        if (transform == null)
+        {
+            return string.Empty;
+        }
+
+        var parts = new List<string>();
+        var current = transform;
+        while (current != null)
+        {
+            parts.Add(current.name);
+            current = current.parent;
+        }
+
+        parts.Reverse();
+        return string.Join("/", parts);
     }
 
     internal static string DecodeLabelValue(string value)
@@ -452,15 +682,36 @@ internal static class TranslationPatches
 
     [HarmonyPatch(typeof(TMP_Text), "set_text")]
     [HarmonyPrefix]
-    internal static void TMP_Text_set_text_Prefix(ref string value)
+    internal static void TMP_Text_set_text_Prefix(TMP_Text __instance, ref string value)
     {
         try
         {
-            value = Plugin.ReplaceGnomeNames(value);
+            value = Plugin.ApplyTMPTextOverrides(__instance, value);
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogWarning($"Failed to override gnome name in TMP text: {ex.Message}");
+            Plugin.Log.LogWarning($"Failed to override TMP text: {ex.Message}");
         }
     }
+
+    [HarmonyPatch(typeof(Compass2UI), "LateUpdate")]
+    [HarmonyPostfix]
+    internal static void Compass2UI_LateUpdate_Postfix(Compass2UI __instance)
+    {
+        if (__instance == null)
+        {
+            return;
+        }
+
+        try
+        {
+            Plugin.ApplyCompassDirectionOverridesFrom(__instance.transform);
+            Plugin.DumpCompassCandidatesFrom(__instance.transform, "Compass2UI.LateUpdate");
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"Failed to dump Compass2UI text candidates: {ex.Message}");
+        }
+    }
+
 }
