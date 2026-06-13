@@ -16,14 +16,16 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "actepukc.outbound.uitranslationbulgarian";
     public const string PluginName = "(UI) Outbound Bulgarian Translation";
-    public const string PluginVersion = "0.1.0";
+    public const string PluginVersion = "0.1.2";
 
     internal static new ManualLogSource Log;
     internal static readonly Dictionary<string, string> Replacements = new Dictionary<string, string>(StringComparer.Ordinal);
+    internal static readonly Dictionary<string, string> GnomeNameReplacements = new Dictionary<string, string>(StringComparer.Ordinal);
     internal static readonly HashSet<string> DumpedKeys = new HashSet<string>(StringComparer.Ordinal);
     internal static string DumpPath = string.Empty;
     internal static string LabelsPath = string.Empty;
     internal static string LegacyLabelsPath = string.Empty;
+    internal static string GnomeNamesPath = string.Empty;
     internal static ConfigEntry<bool> DumpTranslations;
     internal static ConfigEntry<bool> EnableTranslationOverrides;
     internal static ConfigEntry<bool> LegacyEnableBulgarianOverrides;
@@ -33,6 +35,7 @@ public sealed class Plugin : BasePlugin
     internal static ConfigEntry<string> TargetLanguageName;
     internal static ConfigEntry<bool> OverrideAllLanguages;
     internal static ConfigEntry<bool> AssumeTargetLanguageOnStartup;
+    internal static ConfigEntry<bool> EnableGnomeNameOverrides;
     internal static Harmony HarmonyInstance;
     internal static Language CurrentLanguage = Language.English;
     internal static Language TargetLanguage = Language.Ukrainian;
@@ -47,6 +50,7 @@ public sealed class Plugin : BasePlugin
         Directory.CreateDirectory(dumpDir);
 
         LegacyLabelsPath = Path.Combine(pluginDir, "translations", "labels-bg.txt");
+        GnomeNamesPath = Path.Combine(pluginDir, "translations", "gnome-names.txt");
         DumpPath = Path.Combine(dumpDir, "translation-dump.txt");
 
         DumpTranslations = Config.Bind("General", "DumpTranslations", false, "Dump discovered translation keys and resolved text to translation-dump.txt. Enable this only while developing or reporting missing translations.");
@@ -58,6 +62,7 @@ public sealed class Plugin : BasePlugin
         TargetLanguageName = Config.Bind("General", "TargetLanguageName", "Ukrainian", "Game language enum value that should be treated as the translated language slot.");
         OverrideAllLanguages = Config.Bind("General", "OverrideAllLanguages", false, "Apply replacements regardless of the currently selected game language.");
         AssumeTargetLanguageOnStartup = Config.Bind("General", "AssumeTargetLanguageOnStartup", false, "Assume the configured translated language slot is active before the game reports its saved language.");
+        EnableGnomeNameOverrides = Config.Bind("General", "EnableGnomeNameOverrides", true, "Replace collectible gnome names from translations/gnome-names.txt after the game formats them into UI text.");
         LabelsPath = Path.Combine(pluginDir, "translations", LabelsFileName.Value);
         TargetLanguage = ResolveTargetLanguage(TargetLanguageName.Value);
 
@@ -67,12 +72,14 @@ public sealed class Plugin : BasePlugin
         }
 
         LoadReplacements();
+        LoadGnomeNameReplacements();
 
         HarmonyInstance = new Harmony(PluginGuid);
         HarmonyInstance.PatchAll(typeof(Plugin).Assembly);
 
         Log.LogInfo($"{PluginName} {PluginVersion} loaded");
         Log.LogInfo($"translation entries: {Replacements.Count}");
+        Log.LogInfo($"gnome name entries: {GnomeNameReplacements.Count}");
         Log.LogInfo($"target language slot: {TargetLanguage}");
         Log.LogInfo($"dump path: {DumpPath}");
     }
@@ -126,6 +133,104 @@ public sealed class Plugin : BasePlugin
                 Replacements[key] = value;
             }
         }
+    }
+
+    internal static void LoadGnomeNameReplacements()
+    {
+        GnomeNameReplacements.Clear();
+
+        if (!File.Exists(GnomeNamesPath))
+        {
+            Log.LogInfo($"Gnome name file not found: {GnomeNamesPath}");
+            return;
+        }
+
+        foreach (var rawLine in File.ReadAllLines(GnomeNamesPath, Encoding.UTF8))
+        {
+            var line = rawLine.Trim();
+            if (line.Length == 0 || line.StartsWith("#") || line.StartsWith("//"))
+            {
+                continue;
+            }
+
+            var separatorIndex = line.IndexOf('=');
+            if (separatorIndex <= 0)
+            {
+                continue;
+            }
+
+            var original = line[..separatorIndex].Trim();
+            var replacement = DecodeLabelValue(line[(separatorIndex + 1)..].Trim());
+
+            if (original.Length != 0 && replacement.Length != 0 && !string.Equals(original, replacement, StringComparison.Ordinal))
+            {
+                GnomeNameReplacements[original] = replacement;
+            }
+        }
+    }
+
+    internal static string ReplaceGnomeNames(string text)
+    {
+        if (string.IsNullOrEmpty(text) || !EnableGnomeNameOverrides.Value || GnomeNameReplacements.Count == 0)
+        {
+            return text;
+        }
+
+        if (!IsTargetLanguageMode(CurrentLanguage))
+        {
+            return text;
+        }
+
+        if (TryReplaceStandaloneGnomeName(text, out var standaloneReplacement))
+        {
+            return standaloneReplacement;
+        }
+
+        if (!LooksLikeGnomeNameText(text))
+        {
+            return text;
+        }
+
+        var result = text;
+        foreach (var pair in GnomeNameReplacements)
+        {
+            if (result.IndexOf(pair.Key, StringComparison.Ordinal) >= 0)
+            {
+                result = result.Replace(pair.Key, pair.Value, StringComparison.Ordinal);
+            }
+        }
+
+        return result;
+    }
+
+    internal static bool TryReplaceStandaloneGnomeName(string text, out string replacement)
+    {
+        var prefix = string.Empty;
+        var suffix = string.Empty;
+        var candidate = text.Trim();
+
+        if (candidate.Length != text.Length)
+        {
+            var start = text.IndexOf(candidate, StringComparison.Ordinal);
+            prefix = text[..start];
+            suffix = text[(start + candidate.Length)..];
+        }
+
+        if (GnomeNameReplacements.TryGetValue(candidate, out var mapped))
+        {
+            replacement = prefix + mapped + suffix;
+            return true;
+        }
+
+        replacement = text;
+        return false;
+    }
+
+    internal static bool LooksLikeGnomeNameText(string text)
+    {
+        return text.IndexOf("Носи името", StringComparison.OrdinalIgnoreCase) >= 0
+            || text.IndexOf("Зветься", StringComparison.OrdinalIgnoreCase) >= 0
+            || text.IndexOf("It goes by the name", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     internal static string DecodeLabelValue(string value)
@@ -273,6 +378,8 @@ internal static class TranslationPatches
             __result = replacement;
             Plugin.Dump(key, replacement, "BG.OverrideByResolvedText");
         }
+
+        __result = Plugin.ReplaceGnomeNames(__result);
     }
 
     [HarmonyPatch(typeof(Translate), "UpdateText")]
@@ -340,6 +447,20 @@ internal static class TranslationPatches
             {
                 Plugin.IsApplyingTextOverride = false;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(TMP_Text), "set_text")]
+    [HarmonyPrefix]
+    internal static void TMP_Text_set_text_Prefix(ref string value)
+    {
+        try
+        {
+            value = Plugin.ReplaceGnomeNames(value);
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogWarning($"Failed to override gnome name in TMP text: {ex.Message}");
         }
     }
 }

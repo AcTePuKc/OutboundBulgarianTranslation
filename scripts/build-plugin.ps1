@@ -16,7 +16,26 @@ if ($Method -eq "csc") {
     }
 
     if (-not (Test-Path -LiteralPath $CscPath)) {
-        throw "C# compiler not found: $CscPath"
+        $sdk = dotnet --list-sdks |
+            ForEach-Object {
+                if ($_ -match '^(?<version>\S+)\s+\[(?<path>.+)\]$') {
+                    [pscustomobject]@{
+                        Version = $Matches.version
+                        Path = $Matches.path
+                        Csc = Join-Path $Matches.path "$($Matches.version)\Roslyn\bincore\csc.dll"
+                    }
+                }
+            } |
+            Where-Object { Test-Path -LiteralPath $_.Csc } |
+            Sort-Object Version -Descending |
+            Select-Object -First 1
+
+        if ($sdk) {
+            $CscPath = $sdk.Csc
+        }
+        else {
+            throw "C# compiler not found: $CscPath"
+        }
     }
 
     dotnet $CscPath "@$ResponseFile"

@@ -41,6 +41,23 @@ This creates local helper files under `data/translation`:
 
 These generated files are ignored by git because they may contain original game text.
 
+### Outbound Patch Update Fast Path
+
+For Outbound, the localization keys were not scattered across thousands of separate UI assets. The useful table was the single AssetRipper text export:
+
+`data/assetripper-export-unity-project/ExportedProject/Assets/4 __Import txt/retrieved translations.txt`
+
+For a future Outbound patch, try this order before doing another full investigative pass:
+
+1. Export the game folder with AssetRipper again into a fresh local `data/assetripper-export-unity-project` folder.
+2. Check whether `ExportedProject/Assets/4 __Import txt/retrieved translations.txt` still exists.
+3. Run `.\scripts\extract-assetripper-translations.ps1`.
+4. Review `data/translation/missing-from-labels.txt` for newly added keys.
+
+If AssetRipper keeps the same path, this avoids searching the whole export manually again. A full scan is only needed if the file disappears, changes format, or the game starts showing untranslated runtime text that is not present in the table.
+
+If the same table can be exported from a smaller source later, prefer that. For the first public version, the reliable method was full game-folder export because single-asset exports from `resources.assets` / `sharedassets0.assets` did not clearly expose the final localization table.
+
 ## Translation File
 
 New projects should use:

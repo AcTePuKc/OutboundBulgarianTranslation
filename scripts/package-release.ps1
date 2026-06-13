@@ -1,8 +1,9 @@
 param(
-    [string]$Version = "0.1.0",
+    [string]$Version = "0.1.2",
     [string]$OutputDir = "dist",
     [string]$BuildDllPath = "build\OutboundTranslationMod\OutboundTranslationMod.dll",
-    [string]$LabelsPath = "src\OutboundTranslationMod\translations\labels.txt"
+    [string]$LabelsPath = "src\OutboundTranslationMod\translations\labels.txt",
+    [string]$GnomeNamesPath = "src\OutboundTranslationMod\translations\gnome-names.txt"
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,6 +30,9 @@ New-Item -ItemType Directory -Path $configDir -Force | Out-Null
 
 Copy-Item -LiteralPath $BuildDllPath -Destination (Join-Path $pluginDir "OutboundTranslationMod.dll") -Force
 Copy-Item -LiteralPath $LabelsPath -Destination (Join-Path $translationsDir "labels.txt") -Force
+if (Test-Path -LiteralPath $GnomeNamesPath) {
+    Copy-Item -LiteralPath $GnomeNamesPath -Destination (Join-Path $translationsDir "gnome-names.txt") -Force
+}
 Copy-Item -LiteralPath "release\OutboundTranslationMod.cfg" -Destination (Join-Path $configDir "actepukc.outbound.uitranslationbulgarian.cfg") -Force
 Copy-Item -LiteralPath "release\README-Nexus.txt" -Destination (Join-Path $root "README.txt") -Force
 Copy-Item -LiteralPath "LICENSE" -Destination (Join-Path $root "LICENSE.txt") -Force
