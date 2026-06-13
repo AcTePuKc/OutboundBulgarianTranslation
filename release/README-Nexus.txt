@@ -1,26 +1,27 @@
 Outbound Bulgarian Translation
 ==============================
 
-This mod adds a Bulgarian UI/text translation for Outbound through BepInEx 6 IL2CPP.
+Този мод добавя български UI/текстов превод за Outbound чрез BepInEx 6 IL2CPP.
 
-Install
--------
+Инсталация
+----------
 
-1. Install BepInEx Unity IL2CPP x64 6.0.0 be.755 or newer into the Outbound game folder.
-2. Start the game once and close it so BepInEx can generate its folders and interop assemblies.
-3. Extract this archive into the Outbound game folder.
-4. Start the game and select Ukrainian in the language menu. The mod replaces the Ukrainian language slot with Bulgarian.
+1. Инсталирай BepInEx Unity IL2CPP x64 6.0.0 be.755 или по-нова версия в папката на Outbound.
+2. Стартирай играта веднъж и я затвори, за да може BepInEx да създаде нужните папки и interop файлове.
+3. Разархивирай този архив в папката на Outbound.
+4. Стартирай играта и избери Ukrainian от менюто за език. Модът заменя украинския езиков слот с български.
 
-Expected paths after installation:
+Очаквани пътища след инсталация:
 
 - Outbound/BepInEx/plugins/OutboundTranslationMod/OutboundTranslationMod.dll
 - Outbound/BepInEx/plugins/OutboundTranslationMod/translations/labels.txt
+- Outbound/BepInEx/plugins/OutboundTranslationMod/translations/gnome-names.txt
 - Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
-Recommended Config
-------------------
+Препоръчителен Config
+---------------------
 
-The archive includes this plugin config for normal play:
+Архивът включва този plugin config за нормална игра:
 
 Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
@@ -33,24 +34,24 @@ Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 - OverrideAllLanguages = false
 - AssumeTargetLanguageOnStartup = true
 
-Important: AssumeTargetLanguageOnStartup = true is required for Outbound's startup menu when replacing Ukrainian. Without it, the first menu may remain Ukrainian until the language is switched away and back.
+Важно: AssumeTargetLanguageOnStartup = true е нужна настройка за началното меню на Outbound при замяна на Ukrainian. Без нея първото меню може да остане на украински, докато езикът не бъде сменен ръчно.
 
-EnableGnomeNameOverrides = true enables the separate gnome-name replacement table from translations/gnome-names.txt.
+EnableGnomeNameOverrides = true включва отделната таблица за имената на гномите от translations/gnome-names.txt.
 
-EnableCompassDirectionOverrides = true translates the compass direction labels from N/E/S/W to С/И/Ю/З. These labels are not part of the normal localization table, so they are handled by a narrow compass UI hook.
+EnableCompassDirectionOverrides = true превежда посоките на компаса от N/E/S/W на С/И/Ю/З. Тези надписи не са част от стандартната localization таблица, затова се обработват чрез отделен тесен compass UI hook.
 
-If you already ran an older version of the mod, BepInEx may keep your old config values. Replace the config with the one from this archive or delete the old config and run the game again.
+Ако вече си пускал по-стара версия на мода, BepInEx може да запази старите config стойности. Замени config файла с този от архива или изтрий стария config и пусни играта отново.
 
-Notes
------
+Бележки
+-------
 
-- The compass N/E/S/W markings are not part of the game's localization table, but this mod translates them through a dedicated compass UI hook.
-- Some collectible names may come from game asset names rather than translation keys.
-- Runtime dumping is disabled in the release package because all extracted translation keys are currently covered. Enable DumpTranslations only if you want to report newly discovered missing text.
+- Посоките на компаса N/E/S/W не са част от localization таблицата на играта, но този мод ги превежда чрез отделен compass UI hook.
+- Някои collectible имена идват от game asset имена, а не от стандартни translation ключове.
+- Runtime dumping е изключен в release пакета. Включвай DumpTranslations само ако искаш да докладваш новооткрит липсващ текст.
 
 Credits
 -------
 
-Bulgarian translation: AcTePuKc / Щерян Николаев
+Български превод: AcTePuKc / Щерян Николаев
 Localization hook/tooling: AcTePuKc
 License: MIT
