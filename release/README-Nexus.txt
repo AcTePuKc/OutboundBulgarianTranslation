@@ -26,12 +26,15 @@ Outbound/BepInEx/config/actepukc.outbound.uitranslationbulgarian.cfg
 
 - DumpTranslations = false
 - EnableTranslationOverrides = true
+- EnableGnomeNameOverrides = true
 - LabelsFileName = labels.txt
 - TargetLanguageName = Ukrainian
 - OverrideAllLanguages = false
 - AssumeTargetLanguageOnStartup = true
 
 Important: AssumeTargetLanguageOnStartup = true is required for Outbound's startup menu when replacing Ukrainian. Without it, the first menu may remain Ukrainian until the language is switched away and back.
+
+EnableGnomeNameOverrides = true enables the separate gnome-name replacement table from translations/gnome-names.txt.
 
 If you already ran an older version of the mod, BepInEx may keep your old config values. Replace the config with the one from this archive or delete the old config and run the game again.
 

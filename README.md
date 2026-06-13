@@ -29,6 +29,7 @@ The release archive includes the correct config for normal play:
 [General]
 DumpTranslations = false
 EnableTranslationOverrides = true
+EnableGnomeNameOverrides = true
 LabelsFileName = labels.txt
 TargetLanguageName = Ukrainian
 OverrideAllLanguages = false
@@ -40,6 +41,8 @@ AssumeTargetLanguageOnStartup = true
 If you already ran an older version of the mod, BepInEx may keep your old config values. In that case, replace the config with the one from the release archive or delete the old config and run the game again.
 
 `DumpTranslations = false` is the release setting. Enable it only when debugging missing or hardcoded text, because it writes discovered game text into a local dump file.
+
+`EnableGnomeNameOverrides = true` enables the separate gnome-name replacement table from `translations/gnome-names.txt`.
 
 ## Current Status
 
