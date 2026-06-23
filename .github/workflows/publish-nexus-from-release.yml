@@ -1,0 +1,93 @@
+name: Publish Nexus From Release
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: GitHub release tag to publish to Nexus
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexus-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    env:
+      REPOSITORY: AcTePuKc/OutboundBulgarianTranslation
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve GitHub release
+        id: release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ("${{ github.event_name }}" -eq "release") {
+            $tag = "${{ github.event.release.tag_name }}"
+          }
+          else {
+            $tag = "${{ inputs.tag }}"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw "A GitHub release tag is required."
+          }
+
+          $release = gh release view $tag --repo $env:REPOSITORY --json tagName,body | ConvertFrom-Json
+          $version = $release.tagName.TrimStart("v")
+
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw "Could not resolve a version from tag '$tag'."
+          }
+
+          "tag=$($release.tagName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "notes<<NEXUS_NOTES" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          $release.body | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "NEXUS_NOTES" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Download release archive
+        id: download
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force -Path .\release-download | Out-Null
+          gh release download "${{ steps.release.outputs.tag }}" `
+            --repo $env:REPOSITORY `
+            --pattern "OutboundTranslationMod-*.zip" `
+            --dir .\release-download
+
+          $archives = @(Get-ChildItem -LiteralPath .\release-download -Filter "OutboundTranslationMod-*.zip")
+          if ($archives.Count -ne 1) {
+            throw "Expected exactly one OutboundTranslationMod zip asset, found $($archives.Count)."
+          }
+
+          "asset_path=$($archives[0].FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Publish to Nexus Mods
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.7
+        with:
+          api_key: ${{ secrets.NEXUS_API_KEY }}
+          file_group_id: ${{ secrets.NEXUS_FILE_GROUP_ID }}
+          filename: ${{ steps.download.outputs.asset_path }}
+          version: ${{ steps.release.outputs.version }}
+          display_name: Bulgarian Translation
+          description: ${{ steps.release.outputs.notes }}
+          file_category: main
+          archive_existing_file: true
+          primary_mod_manager_download: true
+          allow_mod_manager_download: true
+          show_requirements_pop_up: false
