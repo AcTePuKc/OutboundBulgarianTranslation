@@ -54,9 +54,6 @@ jobs:
 
           "tag=$($release.tagName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "notes<<NEXUS_NOTES" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          $release.body | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "NEXUS_NOTES" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Download release archive
         id: download
@@ -85,7 +82,7 @@ jobs:
           filename: ${{ steps.download.outputs.asset_path }}
           version: ${{ steps.release.outputs.version }}
           display_name: Bulgarian Translation
-          description: ${{ steps.release.outputs.notes }}
+          description: Bulgarian translation for Outbound. See the matching GitHub Release for the full changelog.
           file_category: main
           archive_existing_file: true
           primary_mod_manager_download: true

@@ -104,7 +104,9 @@ Build:
 
 GitHub Actions проверява файловете за превод и метаданните на архива, но не build-ва DLL-а. Публичен CI build би изисквал локални BepInEx interop/game assemblies от инсталирано копие на Outbound, които не трябва да се commit-ват или разпространяват.
 
-При публикуване на GitHub Release workflow-ът `Publish Nexus From Release` качва неговия ZIP файл в Nexus Mods. Версията и описанието на файла се вземат директно от tag-а и release бележките в GitHub.
+При публикуване на GitHub Release workflow-ът `Publish Nexus From Release` качва неговия ZIP файл в Nexus Mods. Версията се взема директно от tag-а.
+
+Важно: полето `description` на Nexus upload API е описание на файла, а не Nexus Changelog. Workflow-ът винаги изпраща кратко постоянно описание. Подробният changelog остава в GitHub Release и при нужда се добавя ръчно в Nexus.
 
 ## Правила За Споделяне
 
