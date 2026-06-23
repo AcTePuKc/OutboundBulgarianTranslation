@@ -16,7 +16,7 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "actepukc.outbound.uitranslationbulgarian";
     public const string PluginName = "(UI) Outbound Bulgarian Translation";
-    public const string PluginVersion = "0.1.3";
+    public const string PluginVersion = "0.1.4";
 
     internal static new ManualLogSource Log;
     internal static readonly Dictionary<string, string> Replacements = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -557,12 +557,24 @@ public sealed class Plugin : BasePlugin
 
         try
         {
-            File.AppendAllText(DumpPath, $"{source}\t{key}\t{text}{Environment.NewLine}", Encoding.UTF8);
+            File.AppendAllText(
+                DumpPath,
+                $"{EncodeDumpField(source)}\t{EncodeDumpField(key)}\t{EncodeDumpField(text)}{Environment.NewLine}",
+                Encoding.UTF8);
         }
         catch (Exception ex)
         {
             Log.LogWarning($"Failed to append dump entry: {ex.Message}");
         }
+    }
+
+    internal static string EncodeDumpField(string value)
+    {
+        return value
+            .Replace("\\", "\\\\")
+            .Replace("\r", "\\r")
+            .Replace("\n", "\\n")
+            .Replace("\t", "\\t");
     }
 }
 
