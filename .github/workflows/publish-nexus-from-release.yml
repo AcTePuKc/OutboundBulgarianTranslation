@@ -82,7 +82,6 @@ jobs:
           filename: ${{ steps.download.outputs.asset_path }}
           version: ${{ steps.release.outputs.version }}
           display_name: OutboundTranslationMod ${{ steps.release.outputs.version }}
-          description: Bulgarian translation for Outbound. See the matching GitHub Release for the full changelog.
           file_category: main
           archive_existing_file: true
           primary_mod_manager_download: true
