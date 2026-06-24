@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "0.1.4",
+    [string]$Version = "0.1.5",
     [string]$OutputDir = "dist",
     [string]$BuildDllPath = "build\OutboundTranslationMod\OutboundTranslationMod.dll",
     [string]$LabelsPath = "src\OutboundTranslationMod\translations\labels.txt",

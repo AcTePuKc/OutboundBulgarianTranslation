@@ -16,7 +16,7 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "actepukc.outbound.uitranslationbulgarian";
     public const string PluginName = "(UI) Outbound Bulgarian Translation";
-    public const string PluginVersion = "0.1.4";
+    public const string PluginVersion = "0.1.5";
 
     internal static new ManualLogSource Log;
     internal static readonly Dictionary<string, string> Replacements = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -181,7 +181,7 @@ public sealed class Plugin : BasePlugin
             return text;
         }
 
-        if (!IsTargetLanguageMode(CurrentLanguage))
+        if (!IsCurrentTargetLanguageMode())
         {
             return text;
         }
@@ -245,7 +245,7 @@ public sealed class Plugin : BasePlugin
             return text;
         }
 
-        if (!IsTargetLanguageMode(CurrentLanguage))
+        if (!IsCurrentTargetLanguageMode())
         {
             return text;
         }
@@ -403,7 +403,7 @@ public sealed class Plugin : BasePlugin
 
     internal static void ApplyCompassDirectionOverridesFrom(Transform root)
     {
-        if (root == null || !EnableCompassDirectionOverrides.Value || !IsTargetLanguageMode(CurrentLanguage))
+        if (root == null || !EnableCompassDirectionOverrides.Value || !IsCurrentTargetLanguageMode())
         {
             return;
         }
@@ -477,6 +477,51 @@ public sealed class Plugin : BasePlugin
         return OverrideAllLanguages.Value || language == TargetLanguage || (LegacyTreatUkrainianAsBulgarian.Value && language == Language.Ukrainian);
     }
 
+    internal static bool TryGetCurrentGameLanguage(out Language language)
+    {
+        try
+        {
+            var manager = TranslationManager.Current;
+            if (manager != null)
+            {
+                language = manager.GetCurrentLanguage;
+                CurrentLanguage = language;
+                return true;
+            }
+        }
+        catch
+        {
+        }
+
+        language = CurrentLanguage;
+        return false;
+    }
+
+    internal static bool IsCurrentTargetLanguageMode()
+    {
+        if (TryGetCurrentGameLanguage(out var language))
+        {
+            return IsTargetLanguageMode(language);
+        }
+
+        return IsTargetLanguageMode(CurrentLanguage);
+    }
+
+    internal static bool ShouldApplyTranslateResult(bool translateIntoSpecificLanguage, Language requestedLanguage)
+    {
+        if (OverrideAllLanguages.Value)
+        {
+            return true;
+        }
+
+        if (translateIntoSpecificLanguage)
+        {
+            return IsTargetLanguageMode(requestedLanguage);
+        }
+
+        return IsCurrentTargetLanguageMode();
+    }
+
     internal static bool AreTranslationOverridesEnabled()
     {
         return EnableTranslationOverrides.Value || LegacyEnableBulgarianOverrides.Value;
@@ -522,7 +567,7 @@ public sealed class Plugin : BasePlugin
 
     internal static void RefreshVisibleTranslationsIfTargetLanguage()
     {
-        if (!IsTargetLanguageMode(CurrentLanguage))
+        if (!IsCurrentTargetLanguageMode())
         {
             return;
         }
@@ -586,7 +631,6 @@ internal static class TranslationPatches
     internal static void TranslationManager_SetLanguage_Postfix(Language language)
     {
         Plugin.CurrentLanguage = language;
-        Plugin.Log.LogInfo($"SetLanguage => {language}");
         Plugin.RefreshVisibleTranslationsIfTargetLanguage();
     }
 
@@ -597,17 +641,17 @@ internal static class TranslationPatches
         var key = __0 ?? string.Empty;
         var resolved = __result ?? string.Empty;
 
-        Plugin.Dump(key, resolved, "TranslationManager.Translate");
-
         if (!Plugin.AreTranslationOverridesEnabled())
         {
             return;
         }
 
-        if (!Plugin.IsTargetLanguageMode(__2) && !Plugin.IsTargetLanguageMode(Plugin.CurrentLanguage))
+        if (!Plugin.ShouldApplyTranslateResult(__1, __2))
         {
             return;
         }
+
+        Plugin.Dump(key, resolved, "TranslationManager.Translate");
 
         string replacement;
         if (Plugin.Replacements.TryGetValue(key, out replacement))
@@ -666,7 +710,7 @@ internal static class TranslationPatches
             return;
         }
 
-        if (!Plugin.IsTargetLanguageMode(Plugin.CurrentLanguage))
+        if (!Plugin.IsCurrentTargetLanguageMode())
         {
             return;
         }

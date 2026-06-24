@@ -81,7 +81,7 @@ jobs:
           file_group_id: ${{ secrets.NEXUS_FILE_GROUP_ID }}
           filename: ${{ steps.download.outputs.asset_path }}
           version: ${{ steps.release.outputs.version }}
-          display_name: Bulgarian Translation
+          display_name: OutboundTranslationMod ${{ steps.release.outputs.version }}
           description: Bulgarian translation for Outbound. See the matching GitHub Release for the full changelog.
           file_category: main
           archive_existing_file: true

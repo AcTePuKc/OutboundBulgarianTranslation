@@ -3,7 +3,7 @@ Outbound Bulgarian Translation
 
 Този мод добавя български UI/текстов превод за Outbound чрез BepInEx 6 IL2CPP.
 
-Версия 0.1.4 е проверена с Outbound 1.1.3-902 за Steam (build 23857020).
+Версия 0.1.5 е проверена с Outbound 1.1.3-902 за Steam (build 23857020).
 
 Инсталация
 ----------
