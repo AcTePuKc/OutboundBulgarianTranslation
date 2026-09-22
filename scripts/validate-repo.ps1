@@ -1,6 +1,5 @@
 param(
     [string]$LabelsPath = "src\OutboundTranslationMod\translations\labels.txt",
-    [string]$LegacyLabelsPath = "src\OutboundTranslationMod\translations\labels-bg.txt",
     [string]$ReleaseConfigPath = "release\OutboundTranslationMod.cfg",
     [string]$ReleaseReadmePath = "release\README-Nexus.txt"
 )
@@ -57,14 +56,6 @@ if ($labels.DuplicateKeys.Count -gt 0) {
 }
 if ($labels.InvalidLines.Count -gt 0) {
     Fail "Invalid label lines:`n$($labels.InvalidLines -join "`n")"
-}
-
-if (Test-Path -LiteralPath $LegacyLabelsPath) {
-    $current = Get-Content -LiteralPath $LabelsPath -Raw -Encoding UTF8
-    $legacy = Get-Content -LiteralPath $LegacyLabelsPath -Raw -Encoding UTF8
-    if ($current -ne $legacy) {
-        Fail "$LegacyLabelsPath is out of sync with $LabelsPath"
-    }
 }
 
 if (-not (Test-Path -LiteralPath $ReleaseConfigPath)) {

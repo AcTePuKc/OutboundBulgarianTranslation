@@ -16,7 +16,7 @@ public sealed class Plugin : BasePlugin
 {
     public const string PluginGuid = "actepukc.outbound.uitranslationbulgarian";
     public const string PluginName = "(UI) Outbound Bulgarian Translation";
-    public const string PluginVersion = "0.1.5";
+    public const string PluginVersion = "0.1.6";
 
     internal static new ManualLogSource Log;
     internal static readonly Dictionary<string, string> Replacements = new Dictionary<string, string>(StringComparer.Ordinal);

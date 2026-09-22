@@ -7,7 +7,7 @@
     <AssemblyName>OutboundTranslationMod</AssemblyName>
     <RootNamespace>OutboundTranslationMod</RootNamespace>
     <Description>(UI) Outbound Bulgarian Translation</Description>
-    <Version>0.1.5</Version>
+    <Version>0.1.6</Version>
     <BepInExGameDir Condition="'$(BepInExGameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Outbound</BepInExGameDir>
   </PropertyGroup>
 
@@ -43,9 +43,6 @@
 
   <ItemGroup>
     <None Include="translations\\labels.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="translations\\labels-bg.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="translations\\gnome-names.txt">

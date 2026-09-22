@@ -4,7 +4,7 @@
 
 Модът заменя украинския езиков слот в играта с български и зарежда превода от `translations/labels.txt`.
 
-Текущата версия `0.1.5` е проверена с `Outbound 1.1.3-902` (Steam build `23857020`).
+Текущата версия `0.1.6` е подготвена за Wildlife Update на Outbound.
 
 ## За Играчи
 
@@ -54,14 +54,15 @@ AssumeTargetLanguageOnStartup = true
 
 - Всички извлечени ключове за локализация на Outbound са покрити в `labels.txt`.
 - Тестваната версия е `Outbound 1.1.3-902` за Steam (build `23857020`).
-- Новите архиви използват `translations/labels.txt`; `labels-bg.txt` е само резервен файл за съвместимост.
+- Новите архиви използват само `translations/labels.txt`; старият `labels-bg.txt` е запазен в `legacy/` само като архив.
 - Посоките на компаса `N/E/S/W` не са част от таблицата за локализация, но се превеждат отделно в интерфейса на компаса.
 - Microsoft Store / Xbox app версиите може да изискват допълнителна BepInEx настройка и не са гарантирани от този пакет.
 
 ## Структура
 
 - `src/OutboundTranslationMod`: изходният код на BepInEx IL2CPP плъгина.
-- `src/OutboundTranslationMod/translations/labels.txt`: активният български превод.
+- `src/OutboundTranslationMod/translations/labels.txt`: активният български превод и единственият файл, който се разпространява.
+- `legacy/labels-bg.txt`: старият формат, запазен само за справка.
 - `release/`: README за Nexus и конфигурация за архива.
 - `scripts/`: скриптове за build, пакетиране и проверка.
 - `User.targets.example`: примерна локална build конфигурация за различни пътища до играта.
